@@ -1,0 +1,8 @@
+CREATE DATABASE ansible_db;
+CREATE USER 'ansible_user'@'localhost' IDENTIFIED BY 'securepassword';
+GRANT ALL PRIVILEGES ON ansible_db.* TO 'ansible_user'@'localhost';
+FLUSH PRIVILEGES;
+USE ansible_db;
+SHOW TABLES;
+INSERT INTO playbook (name, playbook_path, inventory_path)
+VALUES ('Test Playbook', '/path/to/playbook.yml', '/path/to/inventory.ini');
