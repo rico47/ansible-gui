@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ansible GUI</title>
+    <!-- Dodaj Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .flash-message {
+            margin-bottom: 20px;
+        }
+        .d-flex.gap-2 {
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center my-4">Ansible Playbook Manager</h1>
+
+        <!-- Wyświetlanie komunikatów -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} flash-message">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Formularz dodawania playbooka -->
+        <h2 class="my-4">Dodaj nowy Playbook</h2>
+        <form method="POST" action="{{ url_for('add_playbook') }}" class="mb-4">
+            <div class="mb-3">
+                <label for="name" class="form-label">Nazwa:</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="playbook_path" class="form-label">Ścieżka do playbooka:</label>
+                <input type="text" class="form-control" id="playbook_path" name="playbook_path" required>
+            </div>
+            <div class="mb-3">
+                <label for="inventory_path" class="form-label">Ścieżka do inventory:</label>
+                <input type="text" class="form-control" id="inventory_path" name="inventory_path" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Dodaj Playbook</button>
+        </form>
+
+        <!-- Lista playbooków -->
+        <h2 class="my-4">Lista Playbooków</h2>
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Nazwa</th>
+                    <th>Playbook Path</th>
+                    <th>Inventory Path</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for playbook in playbooks %}
+                    <tr>
+                        <td>{{ playbook.id }}</td>
+                        <td>{{ playbook.name }}</td>
+                        <td>{{ playbook.playbook_path }}</td>
+                        <td>{{ playbook.inventory_path }}</td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('run_playbook', playbook_id=playbook.id) }}" class="btn btn-success btn-sm">Uruchom</a>
+                                <a href="{{ url_for('edit_playbook', playbook_id=playbook.id) }}" class="btn btn-info btn-sm">Edytuj</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Dodaj Bootstrap JS (opcjonalnie, jeśli potrzebujesz komponentów JS) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
