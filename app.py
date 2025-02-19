@@ -40,8 +40,20 @@ def index():
 @app.route('/add', methods=['POST'])
 def add_playbook():
     name = request.form['name']
-    playbook_path = request.form['playbook_path']
-    inventory_path = request.form['inventory_path']
+
+    playbook_file = request.files['playbook_file']
+    if playbook_file:
+        playbook_path = os.path.join(app.root_path, 'playbooks', playbook_file.filename)
+        playbook_file.save(playbook_path)
+    else:
+        playbook_path = request.form['playbook_path']
+
+    inventory_file = request.files['inventory_file']
+    if inventory_file:
+        inventory_path = os.path.join(app.root_path, 'inventories', inventory_file.filename)
+        inventory_file.save(inventory_path)
+    else:
+        inventory_path = request.form['inventory_path']
 
     new_playbook = Playbook(name=name, playbook_path=playbook_path, inventory_path=inventory_path)
     db.session.add(new_playbook)

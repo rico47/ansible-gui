@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ansible GUI</title>
-    <!-- Dodaj Bootstrap CSS -->
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         body {
             padding: 20px;
@@ -42,11 +44,23 @@
             </div>
             <div class="mb-3">
                 <label for="playbook_path" class="form-label">Ścieżka do playbooka:</label>
-                <input type="text" class="form-control" id="playbook_path" name="playbook_path" required>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="playbook_path" name="playbook_path" required>
+                    <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('playbook_file').click()">
+                        <i class="bi bi-folder"></i> <!-- Ikona folderu -->
+                    </button>
+                    <input type="file" id="playbook_file" style="display: none;" onchange="updatePath('playbook_path', this)">
+                </div>
             </div>
             <div class="mb-3">
                 <label for="inventory_path" class="form-label">Ścieżka do inventory:</label>
-                <input type="text" class="form-control" id="inventory_path" name="inventory_path" required>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="inventory_path" name="inventory_path" required>
+                    <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('inventory_file').click()">
+                        <i class="bi bi-folder"></i> <!-- Ikona folderu -->
+                    </button>
+                    <input type="file" id="inventory_file" style="display: none;" onchange="updatePath('inventory_path', this)">
+                </div>
             </div>
             <button type="submit" class="btn btn-primary">Dodaj Playbook</button>
         </form>
@@ -82,7 +96,16 @@
         </table>
     </div>
 
-    <!-- Dodaj Bootstrap JS (opcjonalnie, jeśli potrzebujesz komponentów JS) -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Funkcja do aktualizacji ścieżki pliku w polu tekstowym
+        function updatePath(inputId, fileInput) {
+            const pathInput = document.getElementById(inputId);
+            if (fileInput.files.length > 0) {
+                pathInput.value = fileInput.files[0].path; // Użyj .path dla pełnej ścieżki
+            }
+        }
+    </script>
 </body>
 </html>
