@@ -1,0 +1,3 @@
+Ansible-gui
+Początek ....
+![image](https://github.com/user-attachments/assets/b4df1743-4690-40ee-a190-494253569df8)
