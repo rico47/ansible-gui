@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 import subprocess
@@ -7,7 +9,7 @@ app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
 # Konfiguracja bazy danych MySQL z SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://ansible_user:passwd@localhost/ansible_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://ansible_user:h4ck3r100@localhost/ansible_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Inicjalizacja SQLAlchemy
@@ -19,6 +21,14 @@ class Playbook(db.Model):
     name = db.Column(db.String(255), nullable=False)
     playbook_path = db.Column(db.String(255), nullable=False)
     inventory_path = db.Column(db.String(255), nullable=False)
+
+# Model Wyniku Uruchomienia Playbooka poprawiony
+class PlaybookRun(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    playbook_id = db.Column(db.Integer, db.ForeignKey('playbook.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.now())
+    output = db.Column(db.Text)
+    success = db.Column(db.Boolean)
 
 # Strona główna
 @app.route('/')
@@ -44,15 +54,37 @@ def add_playbook():
 @app.route('/run/<int:playbook_id>')
 def run_playbook(playbook_id):
     playbook = Playbook.query.get_or_404(playbook_id)
+    now = datetime.now()
+    output_filename = f"playbook_run_{playbook_id}_{now.strftime('%Y%m%d_%H%M%S')}.txt"
+    output_filepath = os.path.join(app.root_path, 'playbook_runs', output_filename)  # Zapis do katalogu 'playbook_runs'
+
+    # Utworzenie katalogu, jeśli nie istnieje
+    os.makedirs(os.path.join(app.root_path, 'playbook_runs'), exist_ok=True)
 
     try:
         command = f"ansible-playbook -i {playbook.inventory_path} {playbook.playbook_path}"
         result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output = result.stdout.decode()
-        flash(f"Playbook uruchomiony pomyślnie:\n{output}", 'success')
+
+        with open(output_filepath, 'w') as f:
+            f.write(output)
+
+        new_run = PlaybookRun(playbook_id=playbook_id, output=output, success=True)
+        db.session.add(new_run)
+        db.session.commit()
+
+        flash(f"Playbook uruchomiony pomyślnie. Wyniki zapisano w {output_filename}", 'success')
+
     except subprocess.CalledProcessError as e:
         error_output = e.stderr.decode()
-        flash(f"Błąd podczas uruchamiania playbooka:\n{error_output}", 'error')
+        with open(output_filepath, 'w') as f:
+            f.write(f"Błąd:\n{error_output}")
+
+        new_run = PlaybookRun(playbook_id=playbook_id, output=error_output, success=False)
+        db.session.add(new_run)
+        db.session.commit()
+
+        flash(f"Błąd podczas uruchamiania playbooka. Szczegóły w {output_filename}", 'error')
 
     return redirect(url_for('index'))
 
