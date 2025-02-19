@@ -1,3 +1,4 @@
 Ansible-gui
 Początek ....
-![image](https://github.com/user-attachments/assets/b4df1743-4690-40ee-a190-494253569df8)
+![image](https://github.com/user-attachments/assets/77797f90-de04-45ed-98c7-9c3551c4837e)
+
